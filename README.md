@@ -32,4 +32,8 @@ statuses: Dictates structural progress markers (id, name) -> e.g., "Plan to Read
 
 books: Relational ledger tracking the metadata pointers (title, year, author_id, genre_id, status_id).
 
-API Endpoints (CRUD Mapping)MethodEndpointDescriptionCRUD MappingGET/api/booksFetches all books with relational metadata joinsReadPOST/api/booksValidates and commits a new book entryCreatePUT/api/books/{id}Updates field properties of a specific record IDUpdateDELETE/api/books/{id}Completely purges a book index from the schemaDelete
+Method,Endpoint,Description,CRUD Mapping
+GET,/api/books,Fetches all books with relational metadata joins,Read
+POST,/api/books,Validates and commits a new book entry,Create
+PUT,/api/books/{id},Updates field properties of a specific record ID,Update
+DELETE,/api/books/{id},Completely purges a book index from the schema,Delete
