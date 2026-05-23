@@ -39,38 +39,15 @@ books: Relational ledger tracking the metadata pointers (title, year, author_id,
 | **PUT** | `/api/books/{id}` | Updates field properties of a specific record ID | Update |
 | **DELETE** | `/api/books/{id}` | Completely purges a book index from the schema | Delete |
 
-Local Installation & Setup Guide
+# Local Installation & Setup Guide
+
 Because the architecture uses a decoupled structure, you must configure and host both applications simultaneously on your local workstation.
 
-Part 1: Laravel Backend Setup
+## Part 1: Laravel Backend Setup
+
+### 1. Install Dependencies
 Navigate to your backend repository folder and install PHP dependencies:
 
-Bash
+```bash
 cd ebuk-backend
 composer install
-Initialize your environment configuration file:
-
-Bash
-cp .env.example .env
-php artisan key:generate
-Configure the local database link:
-Open the .env file in your code editor and adjust the parameters to point to your local database tool (e.g., XAMPP / phpMyAdmin):
-
-Code snippet
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ebuk_db
-DB_USERNAME=root
-DB_PASSWORD=
-(Note: Remember to create a blank schema named ebuk_db in your database engine before continuing).
-
-Run database migrations to generate your normalized schema tables:
-
-Bash
-php artisan migrate
-Start the Laravel server exposed to your local network interface:
-
-Bash
-php artisan serve --host=0.0.0.0 --port=8000
-Using --host=0.0.0.0 is required to ensure external network connections (like your mobile simulator or physical phone) can interact with the server backend.
