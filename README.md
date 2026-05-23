@@ -31,3 +31,5 @@ genres: Maps unique classification items (id, name).
 statuses: Dictates structural progress markers (id, name) -> e.g., "Plan to Read", "Reading", "Completed".
 
 books: Relational ledger tracking the metadata pointers (title, year, author_id, genre_id, status_id).
+
+API Endpoints (CRUD Mapping)MethodEndpointDescriptionCRUD MappingGET/api/booksFetches all books with relational metadata joinsReadPOST/api/booksValidates and commits a new book entryCreatePUT/api/books/{id}Updates field properties of a specific record IDUpdateDELETE/api/books/{id}Completely purges a book index from the schemaDelete
