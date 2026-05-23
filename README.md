@@ -13,7 +13,7 @@ The **EBUK Backend** is a lightweight, decoupled RESTful API built using Laravel
 
 ---
 
-## 📊 Database Normalization Schema
+## Database Normalization Schema
 
 To eliminate structural redundancy and preserve high data integrity, the system layout segregates text constraints into dynamic numerical entities linked through explicit Foreign Keys.
 
@@ -22,3 +22,12 @@ To eliminate structural redundancy and preserve high data integrity, the system 
   [ genres ]   ───( 1-to-Many )───►    ▲
   [ statuses ] ───( 1-to-Many )───► ───┘
 ```
+
+Table Structure
+authors: Stores unique author definitions (id, name).
+
+genres: Maps unique classification items (id, name).
+
+statuses: Dictates structural progress markers (id, name) -> e.g., "Plan to Read", "Reading", "Completed".
+
+books: Relational ledger tracking the metadata pointers (title, year, author_id, genre_id, status_id).
