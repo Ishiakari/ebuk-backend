@@ -54,3 +54,29 @@ composer install
 ```
 ### 2. Initialize Environment Configuration
 Create your environment configuration file and generate the application key:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+### 3. Configure Local Database Link
+Open the .env file in your code editor and adjust the parameters to point to your local database tool (e.g., XAMPP / phpMyAdmin):
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ebuk_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+⚠️ Note: Remember to create a blank schema named ebuk_db in your database engine before continuing.
+### 4. Run Database Migrations
+Run the migrations to generate your normalized schema tables:
+```bash
+php artisan migrate
+```
+### 5. Start the Server
+Start the Laravel server exposed to your local network interface:
+```bash
+php artisan serve --host=0.0.0.0 --port=8000
+```
+Why this matters: Using --host=0.0.0.0 is required to ensure external network connections (like your mobile simulator or physical phone) can interact with the server backend.
