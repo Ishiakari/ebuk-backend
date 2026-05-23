@@ -51,3 +51,6 @@ Navigate to your backend repository folder and install PHP dependencies:
 ```bash
 cd ebuk-backend
 composer install
+```
+### 2. Initialize Environment Configuration
+Create your environment configuration file and generate the application key:
