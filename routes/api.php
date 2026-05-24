@@ -15,7 +15,7 @@ Route::get('/books', function () {
             'author' => $book->author ? $book->author->name : 'Unknown',
             'status' => $book->status ? $book->status->name : 'Borrowed',
             'genre' => $book->genre ? $book->genre->name : 'General',
-            'cover_image' => null,
+            'cover_image' => $book->cover_image ? asset('storage/' . $book->cover_image) : null,
             'file_format' => $book->bookFiles->isNotEmpty() ? $book->bookFiles->first()->file_format : null,
             'description' => $book->description,
         ];
@@ -33,6 +33,7 @@ Route::post('/books', function (Request $request) {
         'status_id' => 'required|exists:statuses,id',
         'description' => 'nullable|string',
         'file' => 'nullable|file|mimes:pdf,epub,mobi|max:51200', // max 50MB
+        'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // max 5MB
     ]);
 
     // Find or create the author and genre by name
@@ -46,6 +47,13 @@ Route::post('/books', function (Request $request) {
     $book->genre_id = $genre->id;
     $book->status_id = $request->status_id;
     $book->description = $request->description;
+
+    // Handle cover image upload
+    if ($request->hasFile('cover_image')) {
+        $coverPath = $request->file('cover_image')->store('covers', 'public');
+        $book->cover_image = $coverPath;
+    }
+
     $book->save();
 
     // Handle file upload
@@ -62,7 +70,20 @@ Route::post('/books', function (Request $request) {
         ]);
     }
 
-    return response()->json($book->load(['author', 'genre', 'status', 'bookFiles']), 201);
+    $book->load(['author', 'genre', 'status', 'bookFiles']);
+    // Format the response similarly to GET to ensure immediate compatibility
+    $bookData = [
+        'id' => $book->id,
+        'title' => $book->title,
+        'author' => $book->author ? $book->author->name : 'Unknown',
+        'status' => $book->status ? $book->status->name : 'Borrowed',
+        'genre' => $book->genre ? $book->genre->name : 'General',
+        'cover_image' => $book->cover_image ? asset('storage/' . $book->cover_image) : null,
+        'file_format' => $book->bookFiles->isNotEmpty() ? $book->bookFiles->first()->file_format : null,
+        'description' => $book->description,
+    ];
+
+    return response()->json($bookData, 201);
 });
 
 Route::get('/authors', function () {
