@@ -12,11 +12,18 @@ Route::get('/books', function () {
         return [
             'id' => $book->id,
             'title' => $book->title,
+            'year' => (string) $book->year,
             'author' => $book->author ? $book->author->name : 'Unknown',
             'status' => $book->status ? $book->status->name : 'Borrowed',
+            'status_id' => $book->status_id,
             'genre' => $book->genre ? $book->genre->name : 'General',
             'cover_image' => $book->cover_image ? asset('storage/' . $book->cover_image) : null,
             'file_format' => $book->bookFiles->isNotEmpty() ? $book->bookFiles->first()->file_format : null,
+            'file' => $book->bookFiles->isNotEmpty() ? [
+                'id' => $book->bookFiles->first()->id,
+                'file_path' => asset('storage/' . $book->bookFiles->first()->file_path),
+                'file_format' => $book->bookFiles->first()->file_format,
+            ] : null,
             'description' => $book->description,
         ];
     });
@@ -84,6 +91,80 @@ Route::post('/books', function (Request $request) {
     ];
 
     return response()->json($bookData, 201);
+});
+
+Route::get('/books/{book}', function (Book $book) {
+    $book->load(['author', 'genre', 'status', 'bookFiles']);
+    return response()->json([
+        'id' => $book->id,
+        'title' => $book->title,
+        'year' => (string) $book->year,
+        'author_name' => $book->author ? $book->author->name : '',
+        'genre_name' => $book->genre ? $book->genre->name : '',
+        'status_id' => $book->status_id,
+        'status_name' => $book->status ? $book->status->name : '',
+        'cover_image' => $book->cover_image ? asset('storage/' . $book->cover_image) : null,
+        'file' => $book->bookFiles->isNotEmpty() ? [
+            'id' => $book->bookFiles->first()->id,
+            'file_path' => asset('storage/' . $book->bookFiles->first()->file_path),
+            'file_format' => $book->bookFiles->first()->file_format,
+        ] : null,
+        'description' => $book->description,
+    ]);
+});
+
+Route::post('/books/{book}', function (Request $request, Book $book) {
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'year' => 'nullable|integer',
+        'author_name' => 'required|string|max:255',
+        'genre_name' => 'required|string|max:255',
+        'status_id' => 'required|exists:statuses,id',
+        'description' => 'nullable|string',
+        'file' => 'nullable|file|mimes:pdf,epub,mobi|max:51200', // max 50MB
+        'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // max 5MB
+    ]);
+
+    $author = Author::firstOrCreate(['name' => $request->author_name]);
+    $genre = Genre::firstOrCreate(['name' => $request->genre_name]);
+
+    $book->title = $request->title;
+    $book->year = $request->year ?? date('Y');
+    $book->author_id = $author->id;
+    $book->genre_id = $genre->id;
+    $book->status_id = $request->status_id;
+    $book->description = $request->description;
+
+    if ($request->hasFile('cover_image')) {
+        $coverPath = $request->file('cover_image')->store('covers', 'public');
+        $book->cover_image = $coverPath;
+    }
+
+    $book->save();
+
+    if ($request->hasFile('file')) {
+        // Delete old file record if exists
+        $book->bookFiles()->delete();
+
+        $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
+        $path = $file->store('book_files', 'public');
+        
+        \App\Models\BookFile::create([
+            'book_id' => $book->id,
+            'file_path' => $path,
+            'file_format' => strtolower($extension),
+            'file_size_bytes' => $file->getSize(),
+        ]);
+    }
+
+    return response()->json(['message' => 'Book updated successfully']);
+});
+
+Route::delete('/books/{book}', function (Book $book) {
+    $book->bookFiles()->delete();
+    $book->delete();
+    return response()->json(['message' => 'Book deleted successfully']);
 });
 
 Route::get('/authors', function () {
