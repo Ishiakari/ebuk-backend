@@ -21,8 +21,8 @@ class Book extends Model
         return $this->belongsTo(Status::class);
     }
 
-    public function bookFile()
+    public function bookFiles()
     {
-        return $this->hasOne(BookFile::class);
+        return $this->hasMany(BookFile::class);
     }
 }
